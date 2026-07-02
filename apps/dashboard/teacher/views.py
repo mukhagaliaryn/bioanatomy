@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404
 
 from apps.dashboard.student.services.subject import convert_rating_to_five_scale
 from core.models import Subject, UserSubject, UserChapter, UserLesson, User, UserTask, UserTheory, UserVideo, \
-    UserAnswer, UserSimulator
+    UserAnswer, UserMatchingAnswer
 from core.utils.decorators import role_required
 
 
@@ -182,7 +182,7 @@ def user_subject_detail_view(request, user_subject_id):
                             'question__options',
                         ).order_by('question__order'),
                     ),
-                    Prefetch('user_simulators', queryset=UserSimulator.objects.select_related('simulator').all()),
+                    Prefetch('user_matching_answers', queryset=UserMatchingAnswer.objects.select_related('pair').all()),
                 ).order_by('task__order', 'id'),
             )
         )

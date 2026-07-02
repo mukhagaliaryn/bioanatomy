@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from apps.dashboard.student.services.subject import handle_post_request, get_related_data, convert_rating_to_five_scale
 from core.models import UserSubject, UserChapter, UserLesson, UserTask, UserVideo, UserAnswer, Feedback, UserTheory, \
-    UserSimulator
+    UserMatchingAnswer
 from core.utils.decorators import role_required
 
 
@@ -122,11 +122,12 @@ def lesson_start_handler(request, subject_id, chapter_id, lesson_id):
                 )
                 ua.options.set([])
 
-        elif task.task_type == 'simulator':
-            for simulator in task.simulators.all():
-                UserSimulator.objects.get_or_create(
+        elif task.task_type == 'matching':
+            for pair in task.matching_pairs.all():
+                UserMatchingAnswer.objects.get_or_create(
                     user_task=user_task,
-                    simulator=simulator
+                    pair=pair,
+                    defaults={'selected_right': ''}
                 )
 
     user_lesson.status = 'in-progress'

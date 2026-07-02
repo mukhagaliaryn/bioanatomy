@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
-from core.models import UserTask, UserVideo, UserAnswer, UserSimulator, UserTheory
+from core.models import UserTask, UserVideo, UserAnswer, UserMatchingAnswer, UserTheory
 
 
 # UserTask admin
@@ -11,9 +11,10 @@ class UserTheoryTab(admin.TabularInline):
     extra = 0
 
 
-class UserSimulatorTab(admin.TabularInline):
-    model = UserSimulator
+class UserMatchingAnswerTab(admin.TabularInline):
+    model = UserMatchingAnswer
     extra = 0
+    readonly_fields = ('pair',)
 
 
 class UserVideoTab(admin.TabularInline):
@@ -53,7 +54,7 @@ class UserTaskAdmin(admin.ModelAdmin):
                 inlines = [UserVideoTab]
             case 'test':
                 inlines = [UserAnswerTab]
-            case 'simulator':
-                inlines = [UserSimulatorTab]
+            case 'matching':
+                inlines = [UserMatchingAnswerTab]
 
         return [inline(self.model, self.admin_site) for inline in inlines]

@@ -4,7 +4,7 @@ from django.utils.html import format_html
 from django_summernote.admin import SummernoteModelAdmin, SummernoteModelAdminMixin
 
 from core.forms.subjects import TheoryAdminForm, QuestionAdminForm, OptionAdminForm
-from core.models import Task, Question, Option, Video, Simulator, Theory
+from core.models import Task, Question, Option, Video, Theory, MatchingPair
 
 
 # Task admin
@@ -15,9 +15,10 @@ class TheoryTab(admin.StackedInline):
     form = TheoryAdminForm
 
 
-class SimulatorTab(admin.TabularInline):
-    model = Simulator
+class MatchingPairTab(admin.TabularInline):
+    model = MatchingPair
     extra = 0
+    fields = ('order', 'left_text', 'right_text')
 
 
 # Video Tab
@@ -69,8 +70,8 @@ class TaskAdmin(admin.ModelAdmin):
             inline_instances = [VideoTab(self.model, self.admin_site)]
         elif obj.task_type == 'test':
             inline_instances = [QuestionTab(self.model, self.admin_site)]
-        elif obj.task_type == 'simulator':
-            inline_instances = [SimulatorTab(self.model, self.admin_site)]
+        elif obj.task_type == 'matching':
+            inline_instances = [MatchingPairTab(self.model, self.admin_site)]
 
         return inline_instances
 

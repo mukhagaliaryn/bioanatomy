@@ -18,8 +18,14 @@ def get_related_data(user_task):
     elif task_type == 'test':
         data['user_answers'] = user_task.user_options.select_related('question').prefetch_related('options').order_by('question__order')
 
-    elif task_type == 'simulator':
-        data['user_simulators'] = user_task.user_simulators.select_related('simulator').all()
+    elif task_type == 'matching':
+        pairs = user_task.task.matching_pairs.all()
+        right_options = list(pairs.values_list('right_text', flat=True))
+        import random
+        shuffled = right_options[:]
+        random.shuffle(shuffled)
+        data['user_matching_answers'] = user_task.user_matching_answers.select_related('pair').order_by('pair__order')
+        data['matching_right_options'] = shuffled
 
     return data
 
@@ -30,7 +36,7 @@ def handle_post_request(request, user_task):
         'theory': handle_theory,
         'video': handle_video,
         'test': handle_test,
-        'simulator': handle_simulator,
+        'matching': handle_matching,
     }
     handler = handlers.get(user_task.task.task_type)
     if handler:
@@ -129,20 +135,36 @@ def handle_test(request, user_task):
     user_task.save()
 
 
-# ---------------------- SIMULATOR ----------------------
-def handle_simulator(request, user_task):
-    simulators = user_task.user_simulators.all()
+# ---------------------- MATCHING ----------------------
+def handle_matching(request, user_task):
+    answers = user_task.user_matching_answers.select_related('pair').all()
+    total = answers.count()
+    correct = 0
 
-    for us in simulators:
-        us.is_completed = True
-        us.save()
+    for uma in answers:
+        selected = request.POST.get(f'pair_{uma.pair.id}', '').strip()
+        uma.selected_right = selected
+        uma.save()
+        if selected == uma.pair.right_text.strip():
+            correct += 1
 
-    if simulators.exists() and all(us.is_completed for us in simulators):
-        user_task.is_completed = True
-        user_task.rating = user_task.task.rating
-        user_task.percentage = 100
-        user_task.save()
-        messages.success(request, 'Симулятор аяқталды')
+    full_rating = user_task.task.rating or 1
+    if total == 0:
+        score = 0
+        messages.error(request, 'Сәйкестендіру жұптары жоқ.')
+    else:
+        ratio = correct / total
+        score = round(full_rating * ratio)
+        if ratio == 1:
+            messages.success(request, 'Барлық жұп дұрыс сәйкестендірілді!')
+        elif ratio == 0:
+            messages.error(request, 'Барлық жұп қате сәйкестендірілді.')
+        else:
+            messages.info(request, f'Ұпай {score} қойылды ({round(ratio * 100)}% дұрыс).')
+
+    user_task.rating = score
+    user_task.is_completed = True
+    user_task.save()
 
 
 # convert_rating_to_five_scale

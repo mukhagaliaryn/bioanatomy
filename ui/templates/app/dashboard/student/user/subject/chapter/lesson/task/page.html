@@ -12,8 +12,8 @@
             {% include 'components/app/task_video.html' %}
         {% elif task_type == 'test' %}
             {% include 'components/app/task_test.html' %}
-        {% elif task_type == 'simulator' %}
-            {% include 'components/app/task_simulator.html' %}
+        {% elif task_type == 'matching' %}
+            {% include 'components/app/task_matching.html' %}
         {% endif %}
     </div>
 
@@ -36,9 +36,9 @@
                         </div>
 
                         <div class="grid gap-1">
-                            <h2 class="text-lg font-bold text-emerald-800">Бұл сабақ аяқталған</h2>
+                            <h2 class="text-lg font-bold text-emerald-800">Бұл модуль аяқталған</h2>
                             <p class="text-sm text-emerald-700/90">
-                                Сабақ бойынша барлық тапсырмалар қаралып, нәтиже сақталған.
+                                Модуль бойынша барлық тапсырмалар қаралып, нәтиже сақталған.
                             </p>
                         </div>
                     </div>

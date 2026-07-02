@@ -37,7 +37,7 @@ class UserChapter(models.Model):
     )
     chapter = models.ForeignKey(
         Chapter, on_delete=models.CASCADE,
-        related_name='user_chapters', verbose_name=_('Бөлім')
+        related_name='user_chapters', verbose_name=_('Тарау')
     )
     user_subject = models.ForeignKey(
         UserSubject, on_delete=models.CASCADE,
@@ -51,17 +51,17 @@ class UserChapter(models.Model):
         return f'{self.user} | {self.chapter}'
 
     class Meta:
-        verbose_name = _('Қолданушының пән бөлімі')
-        verbose_name_plural = _('Қолданушының пән бөлімдері')
+        verbose_name = _('Қолданушының тарауы')
+        verbose_name_plural = _('Қолданушының тараулары')
 
 
 # UserLesson model
 # ----------------------------------------------------------------------------------------------------------------------
 class UserLesson(models.Model):
     LESSON_STATUS = (
-        ('no-started', _('Сабақ басталмады')),
-        ('in-progress', _('Сабақ өтілуде')),
-        ('finished', _('Сабақ аяқталды')),
+        ('no-started', _('Модуль басталмады')),
+        ('in-progress', _('Модуль өтілуде')),
+        ('finished', _('Модуль аяқталды')),
     )
 
     user = models.ForeignKey(
@@ -73,7 +73,7 @@ class UserLesson(models.Model):
         related_name='user_lessons',  verbose_name=_('Қолданушының пәні'))
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,
-        related_name='user_lessons', verbose_name=_('Сабақ')
+        related_name='user_lessons', verbose_name=_('Модуль')
     )
     rating = models.PositiveSmallIntegerField(_('Жалпы бағасы'), default=0)
     percentage = models.DecimalField(_('Пайыздық мөлшері'), default=0, max_digits=5, decimal_places=2)
@@ -83,8 +83,8 @@ class UserLesson(models.Model):
     is_completed = models.BooleanField(_('Орындалды'), default=False)
 
     class Meta:
-        verbose_name = _('Қолданушының сабағы')
-        verbose_name_plural = _('Қолданушының сабақтары')
+        verbose_name = _('Қолданушының модулі')
+        verbose_name_plural = _('Қолданушының модульдері')
 
     def __str__(self):
         return f'{self.user} | {self.lesson}'
@@ -116,7 +116,7 @@ class UserLesson(models.Model):
 class Feedback(models.Model):
     user_lesson = models.ForeignKey(
         UserLesson, on_delete=models.CASCADE,
-        related_name='feedbacks', verbose_name=_('Қолданушының сабағы')
+        related_name='feedbacks', verbose_name=_('Қолданушының модулі')
     )
     rating = models.IntegerField(_('Бағасы'), choices=[(1, 'Өте нашар'), (2, 'Нашар'), (3, 'Орташа'), (4, 'Жақсы'), (5, 'Тамаша')])
     comment = models.TextField(_('Пікір'), blank=True)

@@ -10,7 +10,7 @@ class Task(models.Model):
         ('theory', _('Теория')),
         ('video', _('Видеосабақ')),
         ('test', _('Тестілеу')),
-        ('simulator', _('Симулятор'))
+        ('matching', _('Сәйкестендіру')),
     )
 
     lesson = models.ForeignKey(
@@ -114,20 +114,21 @@ class Option(models.Model):
         verbose_name_plural = _('Жауаптар')
 
 
-# Task type: Simulator model
+# Task type: Matching model
 # ----------------------------------------------------------------------------------------------------------------------
-class Simulator(models.Model):
+class MatchingPair(models.Model):
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE, null=True,
-        verbose_name=_('Тапсырма'), related_name='simulators'
+        verbose_name=_('Тапсырма'), related_name='matching_pairs'
     )
-    url = models.CharField(_('URL сілтеме'), max_length=300)
+    left_text = models.TextField(_('Сол жақ мәтін'))
+    right_text = models.TextField(_('Оң жақ мәтін'))
     order = models.PositiveIntegerField(_('Реттілік нөмері'), default=0)
 
     def __str__(self):
-        return f'{self.pk} - симулятор'
+        return f'{self.pk} - сәйкестендіру жұбы'
 
     class Meta:
-        verbose_name = _('Симулятор')
-        verbose_name_plural = _('Симуляторлар')
+        verbose_name = _('Сәйкестендіру жұбы')
+        verbose_name_plural = _('Сәйкестендіру жұптары')
         ordering = ('order', )

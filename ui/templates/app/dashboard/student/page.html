@@ -84,8 +84,8 @@
         <div class="rounded-3xl border border-border-200 bg-white p-5 shadow-sm">
             <div class="flex items-start justify-between gap-4">
                 <div class="grid gap-1">
-                    <p class="text-sm text-muted">Бөлімдер</p>
-                    <h3 class="text-lg font-semibold">Бөлімдік көрсеткіш</h3>
+                    <p class="text-sm text-muted">Тараулар</p>
+                    <h3 class="text-lg font-semibold">Тараулық көрсеткіш</h3>
                 </div>
                 <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -123,8 +123,8 @@
         <div class="rounded-3xl border border-border-200 bg-white p-5 shadow-sm">
             <div class="flex items-start justify-between gap-4">
                 <div class="grid gap-1">
-                    <p class="text-sm text-muted">Сабақтар</p>
-                    <h3 class="text-lg font-semibold">Сабақтық көрсеткіш</h3>
+                    <p class="text-sm text-muted">Модульдер</p>
+                    <h3 class="text-lg font-semibold">Модульдік көрсеткіш</h3>
                 </div>
                 <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -286,12 +286,12 @@
 
                                             <div class="grid sm:grid-cols-3 gap-3">
                                                 <div class="rounded-2xl bg-secondary-50 px-4 py-3">
-                                                    <p class="text-xs text-muted mb-1">Бөлімдер</p>
+                                                    <p class="text-xs text-muted mb-1">Тараулар</p>
                                                     <p class="font-semibold">{{ item.completed_chapter_count }}/{{ item.user_subject.user_chapters.count }}</p>
                                                 </div>
 
                                                 <div class="rounded-2xl bg-secondary-50 px-4 py-3">
-                                                    <p class="text-xs text-muted mb-1">Сабақтар</p>
+                                                    <p class="text-xs text-muted mb-1">Модульдер</p>
                                                     <p class="font-semibold">{{ item.completed_lesson_count }}/{{ item.user_subject.user_lessons.count }}</p>
                                                 </div>
 
@@ -434,7 +434,7 @@
                                                     <path
                                                         d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
                                                 </svg>
-                                                <span class="text-muted">{{ item.subject.chapters.count }} бөлім</span>
+                                                <span class="text-muted">{{ item.subject.chapters.count }} тарау</span>
                                             </div>
                                             <div class="flex gap-2 items-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -443,18 +443,18 @@
                                                     <path
                                                         d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
                                                 </svg>
-                                                <span class="text-muted">{{ item.subject.lessons.count }} сабақ</span>
+                                                <span class="text-muted">{{ item.subject.lessons.count }} модуль</span>
                                             </div>
                                         </div>
                                     </a>
 
                                     <div class="flex gap-2">
                                         {% if item.user_subject %}
-                                            <a 
-                                                href="{% url 'user_lesson' item.user_subject.id item.first_chapter.id item.first_lesson.id %}" 
+                                            <a
+                                                href="{% url 'user_lesson' item.user_subject.id item.first_chapter.id item.first_lesson.id %}"
                                                 class="flex gap-2 justify-center items-center w-full text-center cursor-pointer focus:outline-none bg-secondary-100 hover:bg-secondary-200 focus:ring-4 focus:ring-secondary-300 font-medium rounded-full px-5 py-2.5"
                                             >
-                                                <span>Сабаққа кіру</span>
+                                                <span>Модульге кіру</span>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
                                                     class="lucide lucide-arrow-right-icon lucide-arrow-right">

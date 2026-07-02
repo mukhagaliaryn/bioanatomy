@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from core.models import Task, Option, UserLesson, Video, Question, Theory, Simulator
+from core.models import Task, Option, UserLesson, Video, Question, Theory, MatchingPair
 
 
 # UserTask model
@@ -86,22 +86,22 @@ class UserAnswer(models.Model):
         verbose_name_plural = _('Таңдалған жауаптар')
 
 
-# UserSimulator model
+# UserMatchingAnswer model
 # ----------------------------------------------------------------------------------------------------------------------
-class UserSimulator(models.Model):
+class UserMatchingAnswer(models.Model):
     user_task = models.ForeignKey(
         UserTask, on_delete=models.CASCADE,
-        related_name='user_simulators', verbose_name=_('Қолданушының тапсырмасы')
+        related_name='user_matching_answers', verbose_name=_('Қолданушының тапсырмасы')
     )
-    simulator = models.ForeignKey(
-        Simulator, on_delete=models.CASCADE,
-        related_name='user_simulators', verbose_name=_('Симулятор')
+    pair = models.ForeignKey(
+        MatchingPair, on_delete=models.CASCADE,
+        related_name='user_matching_answers', verbose_name=_('Сәйкестендіру жұбы')
     )
-    is_completed = models.BooleanField(_('Орындалды'), default=False)
+    selected_right = models.TextField(_('Таңдалған оң жақ мәтін'), blank=True, default='')
 
     class Meta:
-        verbose_name = _('Қолданушының симуляторы')
-        verbose_name_plural = _('Қолданушының симуляторлары')
+        verbose_name = _('Сәйкестендіру жауабы')
+        verbose_name_plural = _('Сәйкестендіру жауаптары')
 
     def __str__(self):
-        return f'{self.user_task} | {self.simulator}'
+        return f'{self.user_task} | {self.pair}'

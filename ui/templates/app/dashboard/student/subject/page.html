@@ -1,7 +1,7 @@
 {% extends "layouts/base_layout.html" %}
 {% load static %}
 
-{% block title %}{{ subject.name }} | LabVerse{% endblock title %}
+{% block title %}{{ subject.name }} | Bioanatomy{% endblock title %}
 
 {% block base_layout %}
 <div class="w-full lg:max-w-screen-xl px-4 py-6 lg:py-8 mx-auto grid gap-6">
@@ -31,11 +31,11 @@
                     <div class="flex flex-wrap items-center gap-3 text-sm text-slate-600">
                         
                         <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
-                            <span>{{ subject.chapters.count }} бөлім</span>
+                            <span>{{ subject.chapters.count }} тарау</span>
                         </div>
 
                         <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
-                            <span>{{ subject.lessons.count }} сабақ</span>
+                            <span>{{ subject.lessons.count }} модуль</span>
                         </div>
 
                         <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
@@ -90,7 +90,7 @@
                                 href="{% url 'user_lesson' user_subject.id first_chapter_id first_lesson_id %}" 
                                 class="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary-600 text-white px-5 py-3 font-semibold hover:bg-primary-700 transition-all"
                             >
-                                Сабаққа кіру
+                                Модульге кіру
                             </a>
                         {% else %}
                             <form action="{% url 'enroll_subject' subject.id %}" method="post">
@@ -107,11 +107,11 @@
                         <div class="grid grid-cols-3 gap-2">
                             <div class="rounded-2xl bg-slate-50 px-3 py-3 text-center">
                                 <div class="text-lg font-black text-slate-900">{{ subject.chapters.count }}</div>
-                                <div class="text-xs text-slate-500">Бөлім</div>
+                                <div class="text-xs text-slate-500">Тарау</div>
                             </div>
                             <div class="rounded-2xl bg-slate-50 px-3 py-3 text-center">
                                 <div class="text-lg font-black text-slate-900">{{ subject.lessons.count }}</div>
-                                <div class="text-xs text-slate-500">Сабақ</div>
+                                <div class="text-xs text-slate-500">Модуль</div>
                             </div>
                             <div class="rounded-2xl bg-slate-50 px-3 py-3 text-center">
                                 <div class="text-lg font-black text-slate-900">{{ subject.user_subjects.count }}</div>
@@ -207,7 +207,7 @@
                                                 </div>
                                                 <div class="grid">
                                                     <span class="font-semibold text-foreground">{{ item.chapter.name }}</span>
-                                                    <span class="text-sm text-muted">{{ item.lessons|length }} сабақ</span>
+                                                    <span class="text-sm text-muted">{{ item.lessons|length }} модуль</span>
                                                 </div>
                                             </div>
 
@@ -238,7 +238,7 @@
 
                                                             <div class="grid gap-1">
                                                                 <h3 class="font-semibold line-clamp-2">{{ ls.lesson.title }}</h3>
-                                                                <span class="text-sm text-muted">Сабақ материалы</span>
+                                                                <span class="text-sm text-muted">Модуль материалы</span>
                                                             </div>
                                                         </div>
 
@@ -253,7 +253,7 @@
                                                     </div>
                                                 {% empty %}
                                                     <div class="rounded-2xl border border-dashed border-border-300 bg-white px-4 py-8 text-center text-muted">
-                                                        Бөлім сабақтары қосылмаған
+                                                        Тарау модульдері қосылмаған
                                                     </div>
                                                 {% endfor %}
                                             </div>
@@ -262,7 +262,7 @@
                                 </div>
                             {% empty %}
                                 <div class="rounded-3xl border border-dashed border-border-300 bg-secondary-50 px-5 py-10 text-center text-muted">
-                                    Пәннің бөлімдері қосылмаған
+                                    Пәннің тараулары қосылмаған
                                 </div>
                             {% endfor %}
                         </div>

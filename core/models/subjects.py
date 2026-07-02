@@ -35,8 +35,8 @@ class Chapter(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = _('Модуль')
-        verbose_name_plural = _('Модульдер')
+        verbose_name = _('Тарау')
+        verbose_name_plural = _('Тараулар')
         ordering = ('order', )
 
 
@@ -49,7 +49,7 @@ class Lesson(models.Model):
     )
     chapter = models.ForeignKey(
         Chapter, on_delete=models.CASCADE,
-        verbose_name=_('Модуль'), related_name='lessons'
+        verbose_name=_('Тарау'), related_name='lessons'
     )
     title = models.CharField(_('Тақырыбы'), max_length=255)
     description = models.TextField(_('Анықтамасы'), blank=True, null=True)
@@ -61,8 +61,8 @@ class Lesson(models.Model):
         return self.title[:64]
 
     class Meta:
-        verbose_name = _('Сабақ')
-        verbose_name_plural = _('Сабақтар')
+        verbose_name = _('Модуль')
+        verbose_name_plural = _('Модульдер')
         ordering = ('order', )
 
 
@@ -71,7 +71,7 @@ class Lesson(models.Model):
 class LessonDocs(models.Model):
     lesson = models.ForeignKey(
         Lesson, on_delete=models.CASCADE,
-        verbose_name=_('Сабақ'), related_name='docs'
+        verbose_name=_('Модуль'), related_name='docs'
     )
     title = models.CharField(_('Тақырыбы'), max_length=255)
     file = models.FileField(_('Файл'), upload_to='core/models/lesson/docs/', blank=True, null=True)
@@ -80,5 +80,5 @@ class LessonDocs(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = _('Сабақ құжаты')
-        verbose_name_plural = _('Сабақ құжаттары')
+        verbose_name = _('Модуль құжаты')
+        verbose_name_plural = _('Модуль құжаттары')
