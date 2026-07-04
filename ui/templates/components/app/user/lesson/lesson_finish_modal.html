@@ -73,9 +73,9 @@
                     </div>
                 </div>
 
-                <form 
-                    action="{% url 'lesson_finish_handler' subject_id=user_subject.id chapter_id=user_chapter.id lesson_id=user_lesson.id %}" 
-                    method="post" 
+                <form
+                    action="{% url 'lesson_finish_handler' subject_id=user_subject.id lesson_id=user_lesson.id %}"
+                    method="post"
                     class="grid sm:grid-cols-2 gap-3"
                 >
                     {% csrf_token %}

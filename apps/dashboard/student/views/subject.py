@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from apps.dashboard.student.services.subject import handle_post_request, get_related_data, convert_rating_to_five_scale
-from core.models import UserSubject, UserChapter, UserLesson, UserTask, UserVideo, UserAnswer, Feedback, UserTheory, \
+from core.models import UserSubject, UserLesson, UserTask, UserVideo, UserAnswer, Feedback, UserTheory, \
     UserMatchingAnswer
 from core.utils.decorators import role_required
 
@@ -15,15 +15,14 @@ from core.utils.decorators import role_required
 # ----------------------------------------------------------------------------------------------------------------------
 @login_required
 @role_required('student')
-def user_lesson_view(request, subject_id, chapter_id, lesson_id):
+def user_lesson_view(request, subject_id, lesson_id):
     user = request.user
     user_subject = get_object_or_404(UserSubject, user=user, pk=subject_id)
     user_lesson = get_object_or_404(UserLesson, user_subject=user_subject, pk=lesson_id)
-    user_chapter = get_object_or_404(UserChapter, user_subject=user_subject, chapter=user_lesson.lesson.chapter)
     tasks = user_lesson.lesson.tasks.exclude(task_type='video')
     user_lessons_qs = UserLesson.objects.filter(user_subject=user_subject).order_by('lesson__order')
 
-    # ------------------ link for user tasks ------------------
+    # link for first user task
     first_task = (
         UserTask.objects
         .filter(user_lesson=user_lesson)
@@ -32,11 +31,10 @@ def user_lesson_view(request, subject_id, chapter_id, lesson_id):
         .first()
     )
 
-    # ------------------ prev, next links ------------------
+    # prev, next links
+    lesson_list = list(user_lessons_qs)
     previous_lesson = None
     next_lesson = None
-
-    lesson_list = list(user_lessons_qs)
     try:
         current_index = lesson_list.index(user_lesson)
         if current_index > 0:
@@ -46,30 +44,20 @@ def user_lesson_view(request, subject_id, chapter_id, lesson_id):
     except ValueError:
         pass
 
-    # ------------------ for navbar ------------------
-    user_chapters = UserChapter.objects.filter(user_subject=user_subject).order_by('chapter__order')
-    user_lessons_by_chapter = {}
+    # for sidebar
     for ul in user_lessons_qs:
-        chapter_id = ul.lesson.chapter_id
-        lesson_tasks = ul.lesson.tasks.all()
-        total_duration = sum(task.duration for task in lesson_tasks)
-        ul.total_duration = total_duration
-        user_lessons_by_chapter.setdefault(chapter_id, []).append(ul)
+        ul.total_duration = sum(task.duration for task in ul.lesson.tasks.all())
 
     context = {
         'user_subject': user_subject,
-        'user_chapter': user_chapter,
         'user_lesson': user_lesson,
         'tasks': tasks,
         'first_task': first_task,
         'previous_lesson': previous_lesson,
         'next_lesson': next_lesson,
         'total_duration': sum(task.duration for task in user_lesson.lesson.tasks.all()),
-        'user_chapters': user_chapters,
-        'user_lessons_by_chapter': user_lessons_by_chapter,
-        'active_chapter_id': user_chapter.pk,
+        'user_lessons': user_lessons_qs,
         'lesson_rating_5': convert_rating_to_five_scale(user_lesson.rating),
-        'chapter_rating_5': convert_rating_to_five_scale(user_chapter.rating),
         'subject_rating_5': convert_rating_to_five_scale(user_subject.rating),
     }
 
@@ -81,18 +69,17 @@ def user_lesson_view(request, subject_id, chapter_id, lesson_id):
 # start lesson
 @login_required
 @role_required('student')
-def lesson_start_handler(request, subject_id, chapter_id, lesson_id):
+def lesson_start_handler(request, subject_id, lesson_id):
     user = request.user
     user_subject = get_object_or_404(UserSubject, user=user, pk=subject_id)
-    user_chapter = get_object_or_404(UserChapter, user_subject=user_subject, pk=chapter_id)
     user_lesson = get_object_or_404(UserLesson, user_subject=user_subject, pk=lesson_id)
 
     if request.method != 'POST':
-        return redirect('user_lesson', subject_id=subject_id, chapter_id=chapter_id, lesson_id=lesson_id)
+        return redirect('user_lesson', subject_id=subject_id, lesson_id=lesson_id)
 
     if not user_lesson.lesson.tasks.exists():
         messages.warning(request, 'Бұл сабақта ешқандай тапсырма жоқ!')
-        return redirect('user_lesson', subject_id=subject_id, chapter_id=chapter_id, lesson_id=lesson_id)
+        return redirect('user_lesson', subject_id=subject_id, lesson_id=lesson_id)
 
     for task in user_lesson.lesson.tasks.all():
         user_task, created = UserTask.objects.get_or_create(
@@ -102,24 +89,15 @@ def lesson_start_handler(request, subject_id, chapter_id, lesson_id):
 
         if task.task_type == 'theory':
             for theory in task.theories.all():
-                UserTheory.objects.get_or_create(
-                    user_task=user_task,
-                    theory=theory
-                )
+                UserTheory.objects.get_or_create(user_task=user_task, theory=theory)
 
         elif task.task_type == 'video':
             for video in task.videos.all():
-                UserVideo.objects.get_or_create(
-                    user_task=user_task,
-                    video=video
-                )
+                UserVideo.objects.get_or_create(user_task=user_task, video=video)
 
         elif task.task_type == 'test':
             for question in task.questions.all():
-                ua, created = UserAnswer.objects.get_or_create(
-                    user_task=user_task,
-                    question=question
-                )
+                ua, created = UserAnswer.objects.get_or_create(user_task=user_task, question=question)
                 ua.options.set([])
 
         elif task.task_type == 'matching':
@@ -141,56 +119,42 @@ def lesson_start_handler(request, subject_id, chapter_id, lesson_id):
         return redirect(
             'user_lesson_task',
             subject_id=subject_id,
-            chapter_id=chapter_id,
             lesson_id=lesson_id,
             task_id=first_user_task.id
         )
 
-    return redirect('user_lesson', subject_id=subject_id, chapter_id=chapter_id, lesson_id=lesson_id)
+    return redirect('user_lesson', subject_id=subject_id, lesson_id=lesson_id)
 
 
 # finish lesson
 @login_required
 @role_required('student')
 @require_POST
-def lesson_finish_handler(request, subject_id, chapter_id, lesson_id):
+def lesson_finish_handler(request, subject_id, lesson_id):
     user = request.user
     user_subject = get_object_or_404(UserSubject, user=user, pk=subject_id)
-    user_chapter = get_object_or_404(UserChapter, user_subject=user_subject, pk=chapter_id)
     user_lesson = get_object_or_404(UserLesson, user_subject=user_subject, pk=lesson_id)
 
     if user_lesson.is_completed:
-        return redirect('user_lesson', subject_id=subject_id, chapter_id=chapter_id, lesson_id=lesson_id)
+        return redirect('user_lesson', subject_id=subject_id, lesson_id=lesson_id)
 
-    # ---------------- UserLesson rating ----------------
+    # UserLesson rating — normalize to 100 scale regardless of task types
     user_tasks = UserTask.objects.filter(user_lesson=user_lesson)
-    total_rating = user_tasks.aggregate(total=Sum('rating')).get('total', 0) or 0
-    user_lesson.rating = total_rating
-    user_lesson.percentage = int(round(user_lesson.rating) * 10)
+    total_earned = user_tasks.aggregate(total=Sum('rating')).get('total', 0) or 0
+    max_rating = user_lesson.lesson.tasks.aggregate(total=Sum('rating')).get('total', 0) or 1
+    normalized = round((total_earned / max_rating) * 100, 2)
+    user_lesson.rating = int(normalized)
+    user_lesson.percentage = normalized
     user_lesson.is_completed = True
     user_lesson.completed_at = timezone.now()
     user_lesson.status = 'finished'
     user_lesson.save()
 
-    # ---------------- UserChapter rating ----------------
-    chapter_lessons = UserLesson.objects.filter(user_subject=user_subject, lesson__chapter=user_lesson.lesson.chapter)
-    avg_chapter_rating = chapter_lessons.aggregate(avg=Avg('rating')).get('avg', 0) or 0
-    user_chapter.rating = int(round(avg_chapter_rating))
-
-    # Процент және completion
-    chapter_total = chapter_lessons.count()
-    chapter_completed = chapter_lessons.filter(is_completed=True).count()
-    user_chapter.percentage = round((chapter_completed / chapter_total) * 100, 2) if chapter_total else 0
-    user_chapter.is_completed = chapter_total > 0 and chapter_total == chapter_completed
-    user_chapter.save()
-
-    # ---------------- UserSubject rating ----------------
-    subject_chapters = UserChapter.objects.filter(user_subject=user_subject)
-    avg_subject_rating = subject_chapters.aggregate(avg=Avg('rating')).get('avg', 0) or 0
+    # UserSubject rating
+    subject_lessons = UserLesson.objects.filter(user_subject=user_subject)
+    avg_subject_rating = subject_lessons.aggregate(avg=Avg('rating')).get('avg', 0) or 0
     user_subject.rating = int(round(avg_subject_rating))
 
-    # Процент және completion
-    subject_lessons = UserLesson.objects.filter(user_subject=user_subject)
     subject_total = subject_lessons.count()
     subject_completed = subject_lessons.filter(is_completed=True).count()
     user_subject.percentage = round((subject_completed / subject_total) * 100, 2) if subject_total else 0
@@ -200,20 +164,20 @@ def lesson_finish_handler(request, subject_id, chapter_id, lesson_id):
     user_subject.save()
 
     messages.success(request, 'Сабақ сәтті аяқталды!')
-    return redirect('user_lesson', subject_id=subject_id, chapter_id=chapter_id, lesson_id=lesson_id)
+    return redirect('user_lesson', subject_id=subject_id, lesson_id=lesson_id)
 
 
 # Feedback handler
 # ----------------------------------------------------------------------------------------------------------------------
 @require_POST
 @login_required
-def feedback_handler(request, subject_id, chapter_id, lesson_id):
+def feedback_handler(request, subject_id, lesson_id):
     user_lesson = get_object_or_404(UserLesson, id=lesson_id, user=request.user)
     rating = request.POST.get('rating')
     comment = request.POST.get('comment', '')
 
     if not rating:
-        return redirect('user_lesson', subject_id=subject_id, chapter_id=chapter_id, lesson_id=lesson_id)
+        return redirect('user_lesson', subject_id=subject_id, lesson_id=lesson_id)
 
     feedback, created = Feedback.objects.get_or_create(
         user_lesson=user_lesson,
@@ -228,17 +192,16 @@ def feedback_handler(request, subject_id, chapter_id, lesson_id):
         feedback.comment = comment
         feedback.save()
 
-    return redirect('user_lesson', subject_id=subject_id, chapter_id=chapter_id, lesson_id=lesson_id)
+    return redirect('user_lesson', subject_id=subject_id, lesson_id=lesson_id)
 
 
 # user_lesson_task page
 # ----------------------------------------------------------------------------------------------------------------------
 @login_required
 @role_required('student')
-def user_lesson_task_view(request, subject_id, chapter_id, lesson_id, task_id):
+def user_lesson_task_view(request, subject_id, lesson_id, task_id):
     user = request.user
     user_subject = get_object_or_404(UserSubject, user=user, pk=subject_id)
-    user_chapter = get_object_or_404(UserChapter, user_subject=user_subject, pk=chapter_id)
     user_lesson = get_object_or_404(UserLesson, user_subject=user_subject, pk=lesson_id)
     user_task = get_object_or_404(UserTask, pk=task_id)
     user_tasks = UserTask.objects.filter(user_lesson=user_lesson).order_by('task__order')
@@ -253,12 +216,11 @@ def user_lesson_task_view(request, subject_id, chapter_id, lesson_id, task_id):
         handle_post_request(request, user_task)
         return redirect(
             'user_lesson_task',
-            subject_id=subject_id, chapter_id=chapter_id, lesson_id=lesson_id, task_id=task_id
+            subject_id=subject_id, lesson_id=lesson_id, task_id=task_id
         )
 
     context = {
         'user_subject': user_subject,
-        'user_chapter': user_chapter,
         'user_lesson': user_lesson,
         'user_task': user_task,
         'user_tasks': user_tasks,
@@ -267,7 +229,6 @@ def user_lesson_task_view(request, subject_id, chapter_id, lesson_id, task_id):
         'next_user_task': next_user_task,
         'prev_user_task': prev_user_task,
         'lesson_rating_5': convert_rating_to_five_scale(user_lesson.rating),
-        'chapter_rating_5': convert_rating_to_five_scale(user_chapter.rating),
         'subject_rating_5': convert_rating_to_five_scale(user_subject.rating),
         **get_related_data(user_task),
     }

@@ -8,12 +8,11 @@
 
     <!-- Hero -->
     <div class="relative overflow-hidden rounded-[32px] border border-border-200 bg-white text-slate-900 shadow-sm">
-
         <div class="grid lg:grid-cols-[1fr_320px] gap-6 p-6 lg:p-8">
-            
+
             <!-- LEFT -->
             <div class="flex flex-col items-start gap-5">
-                
+
                 <div class="inline-flex w-fit items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 text-sm font-medium text-slate-600">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -24,24 +23,15 @@
                 </div>
 
                 <div class="grid gap-3">
-                    <h1 class="text-2xl md:text-4xl font-black leading-tight">
-                        {{ subject.name }}
-                    </h1>
+                    <h1 class="text-2xl md:text-4xl font-black leading-tight">{{ subject.name }}</h1>
 
                     <div class="flex flex-wrap items-center gap-3 text-sm text-slate-600">
-                        
-                        <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
-                            <span>{{ subject.chapters.count }} тарау</span>
-                        </div>
-
                         <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
                             <span>{{ subject.lessons.count }} модуль</span>
                         </div>
-
                         <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5">
                             <span>{{ subject.user_subjects.count }} білім алушы</span>
                         </div>
-
                     </div>
                 </div>
 
@@ -54,9 +44,7 @@
 
             <!-- RIGHT CARD -->
             <div class="grid gap-4">
-                
                 <div class="overflow-hidden rounded-[24px] border border-border-200 bg-white shadow-sm">
-                    
                     <div class="aspect-video bg-slate-100">
                         {% if subject.poster %}
                             <img src="{{ subject.poster.url }}" class="w-full h-full object-cover" alt="">
@@ -70,13 +58,10 @@
                     <div class="mx-4 rounded-2xl bg-slate-50 px-4 py-4">
                         <div class="flex items-center justify-between gap-4 mb-2">
                             <span class="text-sm text-slate-600">Сіздің прогресіңіз</span>
-                            <span class="font-semibold text-slate-900">
-                                {{ user_subject.percentage|floatformat:0 }}%
-                            </span>
+                            <span class="font-semibold text-slate-900">{{ user_subject.percentage|floatformat:0 }}%</span>
                         </div>
-
                         <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
-                            <div 
+                            <div
                                 class="h-full rounded-full bg-primary-600"
                                 style="width: {{ user_subject.percentage|floatformat:0 }}%;"
                             ></div>
@@ -84,14 +69,44 @@
                     </div>
 
                     <div class="p-4 grid gap-3">
-                        
                         {% if user_subject %}
-                            <a 
-                                href="{% url 'user_lesson' user_subject.id first_chapter_id first_lesson_id %}" 
-                                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary-600 text-white px-5 py-3 font-semibold hover:bg-primary-700 transition-all"
-                            >
-                                Модульге кіру
-                            </a>
+                            {% if user_subject.is_completed %}
+                                <!-- Пән аяқталды — сертификат -->
+                                <div class="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-emerald-800">Пән аяқталды!</p>
+                                        <p class="text-xs text-emerald-600">Бағасы: {{ user_subject.rating }}/100</p>
+                                    </div>
+                                </div>
+                                <a
+                                    href="{% url 'certificate_pdf' user_subject.id %}"
+                                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary-600 text-white px-5 py-3 font-semibold hover:bg-primary-700 transition-all"
+                                    target="_blank"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" x2="12" y1="15" y2="3"/>
+                                    </svg>
+                                    Сертификат жүктеу (PDF)
+                                </a>
+                            {% else %}
+                                <a
+                                    href="{% url 'user_lesson' user_subject.id first_lesson_id %}"
+                                    class="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary-600 text-white px-5 py-3 font-semibold hover:bg-primary-700 transition-all"
+                                >
+                                    Модульге кіру
+                                </a>
+                            {% endif %}
                         {% else %}
                             <form action="{% url 'enroll_subject' subject.id %}" method="post">
                                 {% csrf_token %}
@@ -104,11 +119,7 @@
                             </form>
                         {% endif %}
 
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="rounded-2xl bg-slate-50 px-3 py-3 text-center">
-                                <div class="text-lg font-black text-slate-900">{{ subject.chapters.count }}</div>
-                                <div class="text-xs text-slate-500">Тарау</div>
-                            </div>
+                        <div class="grid grid-cols-2 gap-2">
                             <div class="rounded-2xl bg-slate-50 px-3 py-3 text-center">
                                 <div class="text-lg font-black text-slate-900">{{ subject.lessons.count }}</div>
                                 <div class="text-xs text-slate-500">Модуль</div>
@@ -118,10 +129,8 @@
                                 <div class="text-xs text-slate-500">Оқушы</div>
                             </div>
                         </div>
-
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -131,12 +140,10 @@
 
         <!-- Main content -->
         <div class="grid gap-6">
-
-            <!-- Tabs card -->
             <div class="rounded-[28px] border border-border-200 bg-white shadow-sm overflow-hidden">
                 <div class="px-5 lg:px-6 pt-5">
                     <div class="border-b border-border-200">
-                        <ul 
+                        <ul
                             class="flex flex-wrap -mb-px text-sm font-medium text-center gap-2"
                             id="default-tab"
                             data-tabs-toggle="#default-tab-content"
@@ -145,7 +152,7 @@
                             data-tabs-active-classes="text-primary-600 border-primary-600"
                         >
                             <li role="presentation">
-                                <button 
+                                <button
                                     class="inline-flex items-center gap-2 px-4 py-3 border-b-2 rounded-t-xl"
                                     id="plan-tab"
                                     data-tabs-target="#plan"
@@ -154,14 +161,9 @@
                                     aria-controls="plan"
                                     aria-selected="false"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
-                                    </svg>
                                     <span>Пән жоспары</span>
                                 </button>
                             </li>
-
                             <li role="presentation">
                                 <button
                                     class="inline-flex items-center gap-2 px-4 py-3 border-b-2 rounded-t-xl"
@@ -172,11 +174,6 @@
                                     aria-controls="description"
                                     aria-selected="false"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M4 19.5V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2.5Z" />
-                                        <path d="M14 2v6h6" />
-                                    </svg>
                                     <span>Толық сипаттама</span>
                                 </button>
                             </li>
@@ -187,82 +184,35 @@
                 <div id="default-tab-content" class="p-5 lg:p-6">
                     <!-- Plan -->
                     <div class="hidden" id="plan" role="tabpanel" aria-labelledby="plan-tab">
-                        <div class="grid gap-4">
-                            {% for item in chapters %}
-                                <div class="rounded-3xl border border-border-200 overflow-hidden bg-secondary-50/50">
-                                    <h2 id="accordion-collapse-heading-{{ item.chapter.id }}">
-                                        <button
-                                            type="button"
-                                            class="flex items-center justify-between w-full px-5 py-4 text-left"
-                                            data-accordion-target="#accordion-collapse-body-{{ item.chapter.id }}"
-                                            aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
-                                            aria-controls="accordion-collapse-body-{{ item.chapter.id }}"
-                                        >
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
-                                                    </svg>
-                                                </div>
-                                                <div class="grid">
-                                                    <span class="font-semibold text-foreground">{{ item.chapter.name }}</span>
-                                                    <span class="text-sm text-muted">{{ item.lessons|length }} модуль</span>
-                                                </div>
-                                            </div>
-
-                                            <svg data-accordion-icon class="w-4 h-4 shrink-0 text-muted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5" />
+                        <div class="grid gap-3">
+                            {% for ls in lessons %}
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl bg-white border border-border-200 px-4 py-4 hover:shadow-sm transition-all">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-11 h-11 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M2 3h20" />
+                                                <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />
+                                                <path d="m7 21 5-5 5 5" />
                                             </svg>
-                                        </button>
-                                    </h2>
-
-                                    <div
-                                        id="accordion-collapse-body-{{ item.chapter.id }}"
-                                        class="{% if not forloop.first %}hidden{% endif %}"
-                                        aria-labelledby="accordion-collapse-heading-{{ item.chapter.id }}"
-                                    >
-                                        <div class="px-4 pb-4">
-                                            <div class="grid gap-3">
-                                                {% for ls in item.lessons %}
-                                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl bg-white border border-border-200 px-4 py-4 hover:shadow-sm transition-all">
-                                                        <div class="flex items-start gap-3">
-                                                            <div class="w-11 h-11 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center shrink-0">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                    stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                                                    <path d="M2 3h20" />
-                                                                    <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />
-                                                                    <path d="m7 21 5-5 5 5" />
-                                                                </svg>
-                                                            </div>
-
-                                                            <div class="grid gap-1">
-                                                                <h3 class="font-semibold line-clamp-2">{{ ls.lesson.title }}</h3>
-                                                                <span class="text-sm text-muted">Модуль материалы</span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="inline-flex items-center gap-2 rounded-full bg-secondary-100 px-3 py-1.5 text-sm text-muted shrink-0">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                                                                <path d="M12 6v6l4 2" />
-                                                                <circle cx="12" cy="12" r="10" />
-                                                            </svg>
-                                                            <span>{{ ls.duration }}:00</span>
-                                                        </div>
-                                                    </div>
-                                                {% empty %}
-                                                    <div class="rounded-2xl border border-dashed border-border-300 bg-white px-4 py-8 text-center text-muted">
-                                                        Тарау модульдері қосылмаған
-                                                    </div>
-                                                {% endfor %}
-                                            </div>
                                         </div>
+                                        <div class="grid gap-1">
+                                            <h3 class="font-semibold line-clamp-2">{{ ls.lesson.order }}-модуль: {{ ls.lesson.title }}</h3>
+                                            <span class="text-sm text-muted">Модуль материалы</span>
+                                        </div>
+                                    </div>
+                                    <div class="inline-flex items-center gap-2 rounded-full bg-secondary-100 px-3 py-1.5 text-sm text-muted shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 6v6l4 2" />
+                                            <circle cx="12" cy="12" r="10" />
+                                        </svg>
+                                        <span>{{ ls.duration }}:00</span>
                                     </div>
                                 </div>
                             {% empty %}
                                 <div class="rounded-3xl border border-dashed border-border-300 bg-secondary-50 px-5 py-10 text-center text-muted">
-                                    Пәннің тараулары қосылмаған
+                                    Пәннің модульдері қосылмаған
                                 </div>
                             {% endfor %}
                         </div>
@@ -280,7 +230,6 @@
 
         <!-- Sidebar -->
         <div class="grid gap-6 lg:sticky lg:top-6">
-            <!-- Students -->
             <div class="rounded-[28px] border border-border-200 bg-white shadow-sm overflow-hidden">
                 <div class="px-5 py-4 border-b border-border-200">
                     <h3 class="font-bold">Білім алушылар</h3>
@@ -292,27 +241,18 @@
                         <div class="flex items-center gap-3 px-5 py-4 border-b border-border-200 last:border-b-0 hover:bg-secondary-50/60 transition-all">
                             <div class="shrink-0">
                                 {% if student.user.avatar %}
-                                    <img 
-                                        class="w-11 h-11 rounded-full object-cover"
-                                        src="{{ student.user.avatar.url }}" alt="user photo"
-                                    >
+                                    <img class="w-11 h-11 rounded-full object-cover" src="{{ student.user.avatar.url }}" alt="user photo">
                                 {% else %}
                                     <div class="w-11 h-11 rounded-full bg-secondary-100 flex items-center justify-center text-foreground font-semibold">
                                         {{ student.user.first_name|first|upper }}{{ student.user.last_name|first|upper }}
                                     </div>
                                 {% endif %}
                             </div>
-
                             <div class="flex-1 min-w-0">
-                                <h4 class="text-sm font-semibold truncate">
-                                    {{ student.user.first_name }} {{ student.user.last_name }}
-                                </h4>
-                                <p class="text-xs text-muted truncate">
-                                    {{ student.user.email }}
-                                </p>
+                                <h4 class="text-sm font-semibold truncate">{{ student.user.first_name }} {{ student.user.last_name }}</h4>
+                                <p class="text-xs text-muted truncate">{{ student.user.email }}</p>
                             </div>
-
-                            <div 
+                            <div
                                 class="radial-progress bg-primary-50 text-xs text-primary-600 border-4 border-primary-100"
                                 style="--value: {{ student.percentage|floatformat:0 }}; --size: 3.2rem; --thickness: 0.32rem;"
                                 aria-valuenow="{{ student.percentage|floatformat:0 }}" role="progressbar"
@@ -327,7 +267,6 @@
                     {% endfor %}
                 </div>
             </div>
-
         </div>
     </div>
 </div>

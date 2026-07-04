@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
 from apps.dashboard.student.services.subject import convert_rating_to_five_scale
-from core.models import Subject, UserSubject, Lesson, UserChapter, UserLesson
+from core.models import Subject, UserSubject, Lesson, UserLesson
 from core.utils.decorators import role_required
 
 
@@ -18,8 +18,7 @@ def student_view(request):
     subjects = Subject.objects.all()
 
     user_subjects_qs = UserSubject.objects.filter(user=user).prefetch_related(
-        'user_chapters__chapter',
-        'user_lessons__lesson__chapter'
+        'user_lessons__lesson'
     )
     user_subjects = {us.subject_id: us for us in user_subjects_qs}
     average_percentage = user_subjects_qs.aggregate(avg=Avg('percentage'))['avg'] or 0
@@ -28,9 +27,6 @@ def student_view(request):
     completed_subject_count = user_subjects_qs.filter(is_completed=True).count()
     in_process_subject_count = user_subjects_qs.filter(is_completed=False).count()
 
-    total_chapter_count = 0
-    completed_chapter_count_all = 0
-
     total_lesson_count = 0
     completed_lesson_count_all = 0
 
@@ -38,30 +34,17 @@ def student_view(request):
     for subject in subjects:
         user_subject = user_subjects.get(subject.id)
 
-        first_user_chapter = user_subject.user_chapters.first() if user_subject else None
-        first_chapter = first_user_chapter
-
         first_user_lesson = (
-            user_subject.user_lessons.filter(lesson__chapter=first_chapter.chapter).first()
-            if user_subject and first_chapter else None
+            user_subject.user_lessons.order_by('lesson__order').first()
+            if user_subject else None
         )
-        first_lesson = first_user_lesson
 
-        completed_chapter_count = 0
         completed_lesson_count = 0
-        chapter_count = 0
         lesson_count = 0
 
         if user_subject:
-            chapter_count = user_subject.user_chapters.count()
             lesson_count = user_subject.user_lessons.count()
-
-            completed_chapter_count = user_subject.user_chapters.filter(is_completed=True).count()
             completed_lesson_count = user_subject.user_lessons.filter(is_completed=True).count()
-
-            total_chapter_count += chapter_count
-            completed_chapter_count_all += completed_chapter_count
-
             total_lesson_count += lesson_count
             completed_lesson_count_all += completed_lesson_count
 
@@ -70,19 +53,12 @@ def student_view(request):
         subject_list.append({
             'subject': subject,
             'user_subject': user_subject,
-            'first_chapter': first_chapter,
-            'first_lesson': first_lesson,
-            'completed_chapter_count': completed_chapter_count,
+            'first_lesson': first_user_lesson,
             'completed_lesson_count': completed_lesson_count,
-            'chapter_count': chapter_count,
             'lesson_count': lesson_count,
             'students': subject_students,
             'rating_5': convert_rating_to_five_scale(user_subject.rating if user_subject else 0),
         })
-
-    chapter_percentage = round(
-        (completed_chapter_count_all / total_chapter_count) * 100
-    ) if total_chapter_count else 0
 
     lesson_percentage = round(
         (completed_lesson_count_all / total_lesson_count) * 100
@@ -95,10 +71,6 @@ def student_view(request):
             'average_percentage': round(average_percentage),
 
             'total_subject_count': total_subject_count,
-
-            'total_chapter_count': total_chapter_count,
-            'completed_chapter_count': completed_chapter_count_all,
-            'chapter_percentage': chapter_percentage,
 
             'total_lesson_count': total_lesson_count,
             'completed_lesson_count': completed_lesson_count_all,
@@ -119,45 +91,29 @@ def subject_detail_view(request, pk):
     user_subject = (
         UserSubject.objects
         .filter(user=user, subject=subject)
-        .prefetch_related('user_chapters__chapter', 'user_lessons__lesson__chapter')
+        .prefetch_related('user_lessons__lesson')
         .first()
     )
 
-    first_chapter_id = None
     first_lesson_id = None
-
     if user_subject:
-        first_user_chapter = user_subject.user_chapters.first()
-        if first_user_chapter:
-            first_chapter_id = first_user_chapter.id
+        first_user_lesson = user_subject.user_lessons.order_by('lesson__order').first()
+        if first_user_lesson:
+            first_lesson_id = first_user_lesson.id
 
-            first_user_lesson = user_subject.user_lessons.filter(
-                lesson__chapter=first_user_chapter.chapter
-            ).first()
-            if first_user_lesson:
-                first_lesson_id = first_user_lesson.id
-
-    chapters = []
-    for chapter in subject.chapters.all():
-        lessons = []
-        for lesson in chapter.lessons.all():
-            lesson_duration = sum(task.duration for task in lesson.tasks.all())
-            lessons.append({
-                'lesson': lesson,
-                'duration': lesson_duration,
-            })
-
-        chapters.append({
-            'chapter': chapter,
-            'lessons': lessons,
+    lessons = []
+    for lesson in subject.lessons.all():
+        lesson_duration = sum(task.duration for task in lesson.tasks.all())
+        lessons.append({
+            'lesson': lesson,
+            'duration': lesson_duration,
         })
 
     context = {
         'subject': subject,
         'user_subject': user_subject,
-        'first_chapter_id': first_chapter_id,
         'first_lesson_id': first_lesson_id,
-        'chapters': chapters,
+        'lessons': lessons,
     }
     return render(request, 'app/dashboard/student/subject/page.html', context)
 
@@ -170,17 +126,14 @@ def enroll_user_to_subject(request, subject_id):
     user = request.user
     subject = get_object_or_404(Subject, pk=subject_id)
 
-    if not subject.chapters.exists() or not Lesson.objects.filter(chapter__subject=subject).exists():
-        messages.warning(request, _('Бұл пәнде бөлімдер мен сабақтар әлі қосылмаған'))
+    if not Lesson.objects.filter(subject=subject).exists():
+        messages.warning(request, _('Бұл пәнде модульдер әлі қосылмаған'))
         return redirect('student')
 
     user_subject, __ = UserSubject.objects.get_or_create(user=user, subject=subject)
 
-    for chapter in subject.chapters.all():
-        UserChapter.objects.get_or_create(user_subject=user_subject, user=user, chapter=chapter)
-
-        for lesson in chapter.lessons.all():
-            UserLesson.objects.get_or_create(user_subject=user_subject, user=user, lesson=lesson)
+    for lesson in subject.lessons.all():
+        UserLesson.objects.get_or_create(user_subject=user_subject, user=user, lesson=lesson)
 
     messages.success(request, _('Пән қосылды!'))
     return redirect('student')

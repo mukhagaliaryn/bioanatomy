@@ -15,8 +15,8 @@
                         <h1 class="text-xl md:text-2xl font-bold text-foreground">
                             Тапсырмалар бөлімі
                         </h1>
-                        <a 
-                            href="{% url 'user_lesson' user_subject.id user_chapter.id user_lesson.id %}"
+                        <a
+                            href="{% url 'user_lesson' user_subject.id user_lesson.id %}"
                             class="inline-flex items-center gap-2 px-1">
                             <span class="font-semibold underline text-primary-600">{{ user_lesson.lesson.title }}</span>
                         </a>
@@ -39,8 +39,8 @@
                 <div class="grid md:grid-cols-[auto_1fr_auto] items-center gap-4">
                     <div class="flex justify-start">
                         {% if prev_user_task %}
-                            <a 
-                                href="{% url 'user_lesson_task' user_subject.id user_chapter.id user_lesson.id prev_user_task.id %}" 
+                            <a
+                                href="{% url 'user_lesson_task' user_subject.id user_lesson.id prev_user_task.id %}"
                                 class="inline-flex items-center justify-center w-11 h-11 rounded-2xl border border-border-200 bg-white hover:bg-secondary-100 transition-all shadow-sm"
                                 title="Алдыңғы тапсырма"
                             >
@@ -64,8 +64,8 @@
 
                         <div class="flex items-center gap-2">
                             {% for ut in user_tasks %}
-                                {% url 'user_lesson_task' user_subject.id user_chapter.id user_lesson.id ut.id as user_lesson_task %}
-                                <a 
+                                {% url 'user_lesson_task' user_subject.id user_lesson.id ut.id as user_lesson_task %}
+                                <a
                                     href="{{ user_lesson_task }}"
                                     class="group relative flex-1 min-w-[28px] h-3 rounded-full transition-all duration-200 hover:scale-y-110
                                         {% if request.path == user_lesson_task %}
@@ -104,8 +104,8 @@
 
                     <div class="flex justify-end">
                         {% if next_user_task %}
-                            <a 
-                                href="{% url 'user_lesson_task' user_subject.id user_chapter.id user_lesson.id next_user_task.id %}" 
+                            <a
+                                href="{% url 'user_lesson_task' user_subject.id user_lesson.id next_user_task.id %}"
                                 class="inline-flex items-center justify-center w-11 h-11 rounded-2xl border border-border-200 bg-white hover:bg-secondary-100 transition-all shadow-sm"
                                 title="Келесі тапсырма"
                             >

@@ -174,12 +174,12 @@ def convert_rating_to_five_scale(rating):
     except (TypeError, ValueError):
         return 0
 
-    if rating >= 9:
+    if rating >= 90:
         return 5
-    elif rating >= 7:
+    elif rating >= 70:
         return 4
-    elif rating >= 4:
+    elif rating >= 40:
         return 3
-    elif rating >= 1:
+    elif rating >= 10:
         return 2
     return 0

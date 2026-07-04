@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
-from core.models import User, Subject, Lesson, Chapter
+from core.models import User, Subject, Lesson
 
 
 # UserSubject model
@@ -26,33 +26,6 @@ class UserSubject(models.Model):
 
     def __str__(self):
         return f'{self.user} | {self.subject}'
-
-
-# UserSubject model
-# ----------------------------------------------------------------------------------------------------------------------
-class UserChapter(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE,
-        related_name='user_chapters', verbose_name=_('Қолданушы')
-    )
-    chapter = models.ForeignKey(
-        Chapter, on_delete=models.CASCADE,
-        related_name='user_chapters', verbose_name=_('Тарау')
-    )
-    user_subject = models.ForeignKey(
-        UserSubject, on_delete=models.CASCADE,
-        related_name='user_chapters', verbose_name=_('Қолданушының пәндері')
-    )
-    rating = models.PositiveSmallIntegerField(_('Жалпы бағасы'), default=0)
-    percentage = models.DecimalField(_('Пайыздық мөлшері'), default=0, max_digits=5, decimal_places=2)
-    is_completed = models.BooleanField(_('Орындалды'), default=False)
-
-    def __str__(self):
-        return f'{self.user} | {self.chapter}'
-
-    class Meta:
-        verbose_name = _('Қолданушының тарауы')
-        verbose_name_plural = _('Қолданушының тараулары')
 
 
 # UserLesson model
@@ -88,7 +61,6 @@ class UserLesson(models.Model):
 
     def __str__(self):
         return f'{self.user} | {self.lesson}'
-
 
     @property
     def time_spent(self) -> timedelta:

@@ -76,7 +76,7 @@
                     </div>
                 </div>
 
-                <form action="{% url 'lesson_start' user_subject.pk user_chapter.pk user_lesson.pk %}" method="post" class="grid sm:grid-cols-2 gap-3">
+                <form action="{% url 'lesson_start' user_subject.pk user_lesson.pk %}" method="post" class="grid sm:grid-cols-2 gap-3">
                     {% csrf_token %}
 
                     <button

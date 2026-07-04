@@ -120,12 +120,12 @@
             <div>
                 <h2 class="text-xl font-semibold">Қолданушы пәндері бойынша жалпы көрсеткіштер</h2>
                 <p class="text-sm text-muted mt-1">
-                    Пән, тарау және модуль деңгейіндегі ортақ үлгерім көрсеткіштері
+                    Пән және модуль деңгейіндегі ортақ үлгерім көрсеткіштері
                 </p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <!-- Subjects -->
             <div class="rounded-3xl border border-border-200 bg-secondary-50/60 p-5">
                 <div class="flex items-start justify-between gap-4">
@@ -144,7 +144,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center justify-between gap-4">
-                    <div 
+                    <div
                         class="radial-progress bg-primary-50 text-primary-600 border-8 border-primary-100 font-semibold"
                         style="--value: {{ statistics.subject_percentage|floatformat:0 }}; --size: 5.5rem; --thickness: 0.5rem;"
                         aria-valuenow="{{ statistics.subject_percentage|floatformat:0 }}" role="progressbar"
@@ -161,46 +161,6 @@
                                     d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
                             </svg>
                             {{ statistics.subject_rating }} ({{ statistics.subject_rating_5 }})
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chapters -->
-            <div class="rounded-3xl border border-border-200 bg-secondary-50/60 p-5">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="grid gap-1">
-                        <p class="text-sm text-muted">Тараулар</p>
-                        <h3 class="text-lg font-semibold">Тараулық орташа көрсеткіш</h3>
-                    </div>
-                    <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 7h18" />
-                            <path d="M3 12h18" />
-                            <path d="M3 17h12" />
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="mt-5 flex items-center justify-between gap-4">
-                    <div 
-                        class="radial-progress bg-emerald-50 text-emerald-600 border-8 border-emerald-100 font-semibold"
-                        style="--value: {{ statistics.chapter_percentage|floatformat:0 }}; --size: 5.5rem; --thickness: 0.5rem;"
-                        aria-valuenow="{{ statistics.chapter_percentage|floatformat:0 }}" role="progressbar"
-                    >
-                        {{ statistics.chapter_percentage|floatformat:0 }}%
-                    </div>
-
-                    <div class="flex flex-col items-end gap-2">
-                        <span class="text-sm text-muted">Орташа баға</span>
-                        <div class="inline-flex items-center gap-2 bg-white rounded-2xl px-4 py-2 border border-border-200 font-semibold">
-                            <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                                height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                            </svg>
-                            {{ statistics.chapter_rating }} ({{ statistics.chapter_rating_5 }})
                         </div>
                     </div>
                 </div>

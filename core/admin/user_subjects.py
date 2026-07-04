@@ -3,17 +3,11 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_summernote.admin import SummernoteModelAdminMixin
-from core.models import UserSubject, UserLesson, UserChapter, UserTask, Feedback
+from core.models import UserSubject, UserLesson, UserTask, Feedback
 
 
 # UserSubject admin
 # ----------------------------------------------------------------------------------------------------------------------
-# UserChapter Tab
-class UserChapterTab(admin.TabularInline):
-    model = UserChapter
-    extra = 0
-
-
 # UserLesson Tab
 class UserLessonTab(admin.StackedInline):
     model = UserLesson
@@ -36,8 +30,7 @@ class UserSubjectAdmin(admin.ModelAdmin):
     list_display = ('user', 'subject', 'rating', 'percentage', 'is_completed', )
     list_filter = ('user', 'subject', 'is_completed', )
     search_fields = ('user__username', 'subject__title')
-    inlines = (UserChapterTab, UserLessonTab, )
-
+    inlines = (UserLessonTab, )
     exclude = ('created_at', 'completed_at',)
 
 

@@ -7,6 +7,7 @@ from core.models import User
 # ----------------------------------------------------------------------------------------------------------------------
 class Subject(models.Model):
     name = models.CharField(_('Атауы'), max_length=255)
+    author = models.CharField(_('Автор'), max_length=255, blank=True, default='')
     poster = models.ImageField(_('Постер'), blank=True, null=True, upload_to='core/models/subject/posters')
     description = models.TextField(_('Анықтамасы'), blank=True, null=True)
     created_at = models.DateTimeField(_('Уақыты'), auto_now_add=True)
@@ -21,35 +22,12 @@ class Subject(models.Model):
         ordering = ('created_at', )
 
 
-# Chapter model
-# ----------------------------------------------------------------------------------------------------------------------
-class Chapter(models.Model):
-    subject = models.ForeignKey(
-        Subject, on_delete=models.CASCADE,
-        verbose_name=_('Пән'), related_name='chapters'
-    )
-    name = models.CharField(_('Атауы'), max_length=255)
-    order = models.PositiveIntegerField(_('Реттілік нөмері'), default=0)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = _('Тарау')
-        verbose_name_plural = _('Тараулар')
-        ordering = ('order', )
-
-
 # Lesson model
 # ----------------------------------------------------------------------------------------------------------------------
 class Lesson(models.Model):
     subject = models.ForeignKey(
         Subject, on_delete=models.CASCADE,
-        verbose_name=_('Пән'), related_name='lessons', null=True, blank=True
-    )
-    chapter = models.ForeignKey(
-        Chapter, on_delete=models.CASCADE,
-        verbose_name=_('Тарау'), related_name='lessons'
+        verbose_name=_('Пән'), related_name='lessons'
     )
     title = models.CharField(_('Тақырыбы'), max_length=255)
     description = models.TextField(_('Анықтамасы'), blank=True, null=True)

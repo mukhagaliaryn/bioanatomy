@@ -4,24 +4,17 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from core.forms.subjects import SubjectAdminForm, LessonAdminForm
-from core.models import Subject, Chapter, Lesson, LessonDocs
+from core.models import Subject, Lesson, LessonDocs
 from django_summernote.admin import SummernoteModelAdmin, SummernoteModelAdminMixin
 from core.models.tasks import Task
 
 
 # Subject admin
 # ----------------------------------------------------------------------------------------------------------------------
-# Chapter Tab
-class ChapterTab(admin.TabularInline):
-    model = Chapter
-    fields = ('order', 'name', )
-    extra = 0
-
-
 # Lesson Tab
 class LessonTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = Lesson
-    fields = ('order', 'title', 'chapter', 'view_link', )
+    fields = ('order', 'title', 'view_link', )
     extra = 0
     readonly_fields = ('view_link', )
 
@@ -33,35 +26,14 @@ class LessonTab(SummernoteModelAdminMixin, admin.TabularInline):
 
     view_link.short_description = _('Сабақ сілтемесі')
 
-    # Chapter choice
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'chapter':
-            subject_id = request.resolver_match.kwargs.get('object_id')
-            if subject_id:
-                kwargs['queryset'] = Chapter.objects.filter(subject_id=subject_id)
-            else:
-                kwargs['queryset'] = Chapter.objects.none()
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 # Subject admin
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'created_at', 'last_update')
-    search_fields = ('name', 'description', )
-    inlines = (ChapterTab, LessonTab, )
-    form = SubjectAdminForm
-
-
-# Chapter admin
-# ----------------------------------------------------------------------------------------------------------------------
-@admin.register(Chapter)
-class ChapterAdmin(SummernoteModelAdmin):
-    list_display = ('name', 'subject', 'order', )
-    search_fields = ('name', 'subject', )
-    list_filter = ('subject', )
-    ordering = ('order', )
+    list_display = ('name', 'author', 'created_at', 'last_update')
+    search_fields = ('name', 'author', 'description', )
     inlines = (LessonTab, )
+    form = SubjectAdminForm
 
 
 # Lesson admin
@@ -91,14 +63,13 @@ class TaskTab(SummernoteModelAdminMixin, admin.TabularInline):
 # Lesson admin
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ('title', 'subject', 'chapter', 'order', )
-    search_fields = ('title', 'subject', 'chapter', 'description', )
-    list_filter = ('subject', 'chapter', )
+    list_display = ('title', 'subject', 'order', )
+    search_fields = ('title', 'subject', 'description', )
+    list_filter = ('subject', )
     ordering = ('order', )
     inlines = (LessonDocsTab, TaskTab, )
     readonly_fields = ('subject_link', )
     form = LessonAdminForm
-
 
     def subject_link(self, obj):
         if obj.subject:
